@@ -1,0 +1,1730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXUS — Beyond Commerce</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --neon: #00f5ff;
+  --neon2: #7c3aed;
+  --gold: #f59e0b;
+  --bg: #030712;
+  --bg2: #0a0f1e;
+  --surface: rgba(255,255,255,0.04);
+  --border: rgba(255,255,255,0.08);
+  --text: #f1f5f9;
+  --muted: #64748b;
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* === CANVAS BG === */
+#bg-canvas {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 0; pointer-events: none; opacity: 0.4;
+}
+
+/* === LAYOUT === */
+.app { position: relative; z-index: 1; }
+
+/* === NAV === */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 0 2rem;
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(3,7,18,0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--border);
+  transition: all 0.3s;
+}
+.nav-logo {
+  font-family: var(--font-display);
+  font-size: 1.25rem; font-weight: 800;
+  letter-spacing: 0.2em;
+  background: linear-gradient(135deg, #00f5ff, #7c3aed);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.nav-links { display: flex; gap: 2rem; list-style: none; }
+.nav-links a {
+  font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted); text-decoration: none; font-weight: 500;
+  transition: color 0.2s; cursor: pointer;
+}
+.nav-links a:hover, .nav-links a.active { color: var(--text); }
+.nav-actions { display: flex; gap: 0.75rem; align-items: center; }
+.nav-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s; color: var(--muted); font-size: 1rem;
+}
+.nav-icon:hover { border-color: var(--neon); color: var(--neon); }
+.cart-badge {
+  position: relative;
+}
+.cart-badge::after {
+  content: attr(data-count);
+  position: absolute; top: -4px; right: -4px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--neon); color: #000;
+  font-size: 0.6rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* === PAGES === */
+.page { display: none; min-height: 100vh; padding-top: 64px; }
+.page.active { display: block; }
+
+/* === HERO === */
+.hero {
+  height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center; position: relative; overflow: hidden;
+  padding: 0 2rem;
+}
+.hero-orb {
+  position: absolute;
+  border-radius: 50%; filter: blur(80px); pointer-events: none;
+}
+.orb1 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(0,245,255,0.12), transparent); top: 10%; left: -10%; }
+.orb2 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(124,58,237,0.15), transparent); bottom: 0; right: -10%; }
+.orb3 { width: 300px; height: 300px; background: radial-gradient(circle, rgba(245,158,11,0.08), transparent); top: 30%; left: 40%; }
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.4rem 1rem; border-radius: 100px;
+  border: 1px solid rgba(0,245,255,0.3);
+  background: rgba(0,245,255,0.05);
+  font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--neon); margin-bottom: 1.5rem;
+  animation: fadeUp 0.8s ease both;
+}
+.eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--neon); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
+
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 8vw, 7rem);
+  font-weight: 800; line-height: 0.95;
+  letter-spacing: -0.03em;
+  animation: fadeUp 0.8s 0.1s ease both;
+}
+.hero-title .line1 { display: block; color: var(--text); }
+.hero-title .line2 {
+  display: block;
+  background: linear-gradient(135deg, #00f5ff 0%, #7c3aed 50%, #f59e0b 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-size: 200% auto;
+  animation: shimmer 4s linear infinite, fadeUp 0.8s 0.2s ease both;
+}
+@keyframes shimmer { to { background-position: 200% center; } }
+
+.hero-sub {
+  font-size: 1.1rem; color: var(--muted); max-width: 500px; margin: 1.5rem auto;
+  line-height: 1.7; font-weight: 300;
+  animation: fadeUp 0.8s 0.3s ease both;
+}
+
+.hero-cta {
+  display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+  animation: fadeUp 0.8s 0.4s ease both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* === 3D PRODUCT SCENE === */
+.hero-3d {
+  position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 900px; height: 350px;
+  pointer-events: none;
+}
+#product-canvas { width: 100%; height: 100%; }
+
+/* === BUTTONS === */
+.btn {
+  padding: 0.8rem 2rem; border-radius: 8px; border: none;
+  font-family: var(--font-body); font-size: 0.85rem; font-weight: 600;
+  letter-spacing: 0.05em; cursor: pointer; transition: all 0.3s;
+  position: relative; overflow: hidden;
+}
+.btn-primary {
+  background: linear-gradient(135deg, #00f5ff, #7c3aed);
+  color: #000;
+}
+.btn-primary::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, #7c3aed, #00f5ff);
+  opacity: 0; transition: opacity 0.3s;
+}
+.btn-primary:hover::before { opacity: 1; }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,245,255,0.3); }
+.btn-primary span { position: relative; z-index: 1; }
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.btn-ghost:hover {
+  border-color: var(--neon); color: var(--neon);
+  box-shadow: 0 0 20px rgba(0,245,255,0.1);
+}
+
+.btn-sm { padding: 0.5rem 1rem; font-size: 0.75rem; }
+.btn-icon { padding: 0.5rem; border-radius: 8px; }
+
+/* === SECTIONS === */
+.section { padding: 6rem 2rem; }
+.section-label {
+  font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--neon); font-weight: 600; margin-bottom: 0.75rem;
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 700; letter-spacing: -0.02em; line-height: 1.1;
+  margin-bottom: 1rem;
+}
+.section-sub { color: var(--muted); max-width: 500px; line-height: 1.7; font-size: 0.95rem; }
+
+/* === STATS STRIP === */
+.stats-strip {
+  padding: 3rem 2rem;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap;
+}
+.stat { text-align: center; }
+.stat-num {
+  font-family: var(--font-display); font-size: 2.5rem; font-weight: 800;
+  background: linear-gradient(135deg, #fff, #64748b);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.stat-label { font-size: 0.75rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 0.25rem; }
+
+/* === CATEGORIES === */
+.categories-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem;
+  margin-top: 3rem;
+}
+.cat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px; padding: 1.5rem;
+  cursor: pointer; transition: all 0.3s; text-align: center;
+  position: relative; overflow: hidden;
+}
+.cat-card::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(0,245,255,0.05), rgba(124,58,237,0.05));
+  opacity: 0; transition: opacity 0.3s;
+}
+.cat-card:hover { border-color: rgba(0,245,255,0.3); transform: translateY(-4px); }
+.cat-card:hover::before { opacity: 1; }
+.cat-emoji { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+.cat-name { font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; }
+.cat-count { font-size: 0.75rem; color: var(--muted); margin-top: 0.25rem; }
+
+/* === PRODUCT GRID === */
+.products-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 2rem; flex-wrap: gap;
+}
+.filter-bar { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.filter-btn {
+  padding: 0.4rem 1rem; border-radius: 100px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--muted); font-size: 0.75rem; letter-spacing: 0.08em;
+  cursor: pointer; transition: all 0.2s; font-family: var(--font-body);
+}
+.filter-btn:hover, .filter-btn.active {
+  border-color: var(--neon); color: var(--neon);
+  background: rgba(0,245,255,0.05);
+}
+
+.products-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem;
+}
+
+.product-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px; overflow: hidden;
+  cursor: pointer; transition: all 0.4s;
+  position: relative;
+}
+.product-card:hover {
+  border-color: rgba(0,245,255,0.2);
+  transform: translateY(-8px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 30px rgba(0,245,255,0.05);
+}
+
+.product-img-wrap {
+  position: relative; height: 220px; overflow: hidden;
+  background: linear-gradient(135deg, #0a0f1e, #0f172a);
+  display: flex; align-items: center; justify-content: center;
+}
+.product-img-canvas { width: 100%; height: 100%; }
+.product-badge {
+  position: absolute; top: 12px; left: 12px;
+  padding: 0.25rem 0.6rem; border-radius: 100px;
+  font-size: 0.65rem; letter-spacing: 0.1em; font-weight: 600; text-transform: uppercase;
+}
+.badge-new { background: rgba(0,245,255,0.15); color: var(--neon); border: 1px solid rgba(0,245,255,0.3); }
+.badge-sale { background: rgba(245,158,11,0.15); color: var(--gold); border: 1px solid rgba(245,158,11,0.3); }
+.badge-hot { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+
+.product-wish {
+  position: absolute; top: 12px; right: 12px;
+  width: 32px; height: 32px; border-radius: 8px;
+  background: rgba(0,0,0,0.5); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s; font-size: 0.9rem;
+}
+.product-wish:hover, .product-wish.wished { border-color: #ef4444; }
+.product-wish.wished { background: rgba(239,68,68,0.15); }
+
+.product-info { padding: 1.25rem; }
+.product-brand { font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.25rem; }
+.product-name {
+  font-family: var(--font-display); font-size: 1rem; font-weight: 600;
+  margin-bottom: 0.5rem; line-height: 1.3;
+}
+.product-stars { color: var(--gold); font-size: 0.75rem; margin-bottom: 0.75rem; }
+.product-stars span { color: var(--muted); margin-left: 0.25rem; }
+.product-footer { display: flex; justify-content: space-between; align-items: center; }
+.product-price { font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; }
+.product-old { font-size: 0.8rem; color: var(--muted); text-decoration: line-through; margin-left: 0.5rem; }
+.add-btn {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, #00f5ff, #7c3aed);
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; color: #000; font-weight: 700;
+  transition: all 0.3s;
+}
+.add-btn:hover { transform: scale(1.1); box-shadow: 0 5px 20px rgba(0,245,255,0.4); }
+
+/* === PRODUCT DETAIL === */
+.product-detail-layout {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; max-width: 1200px; margin: 0 auto;
+  padding: 3rem 2rem;
+}
+.detail-preview {
+  border-radius: 24px; overflow: hidden;
+  background: linear-gradient(135deg, #0a0f1e, #0f172a);
+  border: 1px solid var(--border);
+  height: 500px; position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+.detail-canvas { width: 100%; height: 100%; }
+.detail-title {
+  font-family: var(--font-display); font-size: 2.5rem; font-weight: 800;
+  line-height: 1.1; letter-spacing: -0.02em; margin: 1rem 0;
+}
+.detail-price-block { display: flex; align-items: center; gap: 1rem; margin: 1.5rem 0; }
+.detail-price { font-family: var(--font-display); font-size: 2rem; font-weight: 700; color: var(--neon); }
+.detail-desc { color: var(--muted); line-height: 1.8; font-size: 0.95rem; margin-bottom: 2rem; }
+.color-pick { display: flex; gap: 0.75rem; margin-bottom: 2rem; }
+.color-dot {
+  width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+  transition: all 0.2s; position: relative;
+}
+.color-dot.active::after {
+  content: ''; position: absolute; inset: -3px;
+  border-radius: 50%; border: 2px solid var(--neon);
+}
+.detail-actions { display: flex; gap: 1rem; }
+.spec-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem;
+}
+.spec-item {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1rem;
+}
+.spec-label { font-size: 0.7rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.25rem; }
+.spec-value { font-family: var(--font-display); font-size: 0.95rem; font-weight: 600; }
+
+/* === CART === */
+.cart-layout { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem; display: grid; grid-template-columns: 1fr 360px; gap: 3rem; }
+.cart-item {
+  display: flex; gap: 1.5rem; padding: 1.5rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; margin-bottom: 1rem; align-items: center;
+}
+.cart-thumb {
+  width: 80px; height: 80px; border-radius: 12px;
+  background: linear-gradient(135deg, #0a0f1e, #1e293b);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.5rem; flex-shrink: 0;
+}
+.cart-info { flex: 1; }
+.cart-name { font-family: var(--font-display); font-weight: 600; margin-bottom: 0.25rem; }
+.cart-meta { font-size: 0.8rem; color: var(--muted); }
+.cart-price { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; margin-left: auto; }
+.qty-ctrl { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.75rem; }
+.qty-btn {
+  width: 28px; height: 28px; border-radius: 6px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--text); cursor: pointer; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.qty-btn:hover { border-color: var(--neon); color: var(--neon); }
+.qty-num { font-family: var(--font-display); font-weight: 600; min-width: 24px; text-align: center; }
+
+.order-summary {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 2rem; height: fit-content;
+  position: sticky; top: 80px;
+}
+.summary-title { font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; margin-bottom: 1.5rem; }
+.summary-line { display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 0.9rem; }
+.summary-line.total { font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; border-top: 1px solid var(--border); padding-top: 1rem; margin-top: 1rem; }
+.promo-input {
+  display: flex; gap: 0.5rem; margin: 1.5rem 0;
+}
+.promo-input input {
+  flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+  border-radius: 8px; padding: 0.6rem 1rem; color: var(--text);
+  font-family: var(--font-body); font-size: 0.85rem; outline: none;
+}
+.promo-input input::placeholder { color: var(--muted); }
+.promo-input input:focus { border-color: var(--neon); }
+
+/* === DASHBOARD === */
+.dashboard { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+.dash-grid { display: grid; grid-template-columns: 240px 1fr; gap: 2rem; }
+.dash-sidebar {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 1.5rem; height: fit-content;
+  position: sticky; top: 80px;
+}
+.dash-nav-item {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.75rem 1rem; border-radius: 10px;
+  cursor: pointer; transition: all 0.2s; margin-bottom: 0.25rem;
+  font-size: 0.875rem; color: var(--muted);
+}
+.dash-nav-item:hover, .dash-nav-item.active { background: rgba(0,245,255,0.08); color: var(--neon); }
+.dash-nav-item .icon { font-size: 1rem; }
+
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+.kpi-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 1.5rem; position: relative; overflow: hidden;
+}
+.kpi-card::before {
+  content: ''; position: absolute; top: 0; right: 0;
+  width: 80px; height: 80px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,245,255,0.1), transparent);
+}
+.kpi-label { font-size: 0.75rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+.kpi-val { font-family: var(--font-display); font-size: 1.75rem; font-weight: 800; margin: 0.5rem 0; }
+.kpi-delta { font-size: 0.75rem; }
+.delta-up { color: #22c55e; } .delta-down { color: #ef4444; }
+
+.chart-wrap {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 2rem; margin-bottom: 2rem;
+}
+.chart-title { font-family: var(--font-display); font-weight: 600; margin-bottom: 1.5rem; }
+#revenue-chart { width: 100%; height: 200px; }
+
+/* === MOBILE APP UI === */
+.mobile-showcase {
+  display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap;
+  padding: 4rem 2rem;
+}
+.phone-frame {
+  width: 280px; height: 580px; border-radius: 40px;
+  border: 2px solid rgba(255,255,255,0.15);
+  background: var(--bg2); overflow: hidden; position: relative;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+.phone-notch {
+  width: 100px; height: 28px; background: #000; border-radius: 0 0 20px 20px;
+  margin: 0 auto; position: relative; z-index: 1;
+}
+.phone-screen { padding: 0 16px 16px; height: calc(100% - 28px); overflow-y: auto; }
+.phone-screen::-webkit-scrollbar { display: none; }
+
+/* mobile bottom nav */
+.mobile-bottom-nav {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 60px; background: rgba(10,15,30,0.95);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-around;
+}
+.mob-nav-item {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 4px; padding: 8px; cursor: pointer; font-size: 1.2rem;
+  color: var(--muted); transition: all 0.2s;
+}
+.mob-nav-item.active { color: var(--neon); }
+.mob-nav-label { font-size: 9px; letter-spacing: 0.05em; }
+
+/* === GLASS CARD === */
+.glass {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+}
+
+/* === SEARCH OVERLAY === */
+.search-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(3,7,18,0.95); backdrop-filter: blur(20px);
+  display: none; flex-direction: column; align-items: center;
+  padding-top: 15vh;
+}
+.search-overlay.open { display: flex; }
+.search-box {
+  display: flex; align-items: center; gap: 1rem;
+  width: 100%; max-width: 600px;
+  border-bottom: 1px solid rgba(0,245,255,0.3);
+  padding-bottom: 1rem; margin-bottom: 2rem;
+}
+.search-input {
+  flex: 1; background: transparent; border: none; outline: none;
+  font-family: var(--font-display); font-size: 2rem; color: var(--text);
+}
+.search-input::placeholder { color: var(--muted); }
+
+/* === WISHLIST === */
+.wishlist-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.5rem; }
+
+/* === CHECKOUT === */
+.checkout-layout { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem; display: grid; grid-template-columns: 1fr 380px; gap: 3rem; }
+.form-group { margin-bottom: 1.25rem; }
+.form-label { font-size: 0.75rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; display: block; margin-bottom: 0.5rem; }
+.form-input {
+  width: 100%; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 0.8rem 1rem; color: var(--text);
+  font-family: var(--font-body); font-size: 0.9rem; outline: none; transition: border 0.2s;
+}
+.form-input:focus { border-color: var(--neon); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.section-form-title { font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; }
+.step-num {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: linear-gradient(135deg, #00f5ff, #7c3aed);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 700; color: #000;
+}
+.payment-methods { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; }
+.pay-method {
+  flex: 1; padding: 0.75rem; border-radius: 10px;
+  border: 1px solid var(--border); cursor: pointer; text-align: center;
+  font-size: 0.8rem; color: var(--muted); transition: all 0.2s;
+}
+.pay-method:hover, .pay-method.active { border-color: var(--neon); color: var(--text); background: rgba(0,245,255,0.05); }
+
+/* === USER PROFILE === */
+.profile-layout { max-width: 900px; margin: 0 auto; padding: 3rem 2rem; }
+.profile-hero {
+  text-align: center; padding: 3rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 24px; margin-bottom: 2rem; position: relative; overflow: hidden;
+}
+.profile-hero::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 120px;
+  background: linear-gradient(135deg, rgba(0,245,255,0.1), rgba(124,58,237,0.1));
+}
+.avatar {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: linear-gradient(135deg, #00f5ff, #7c3aed);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-size: 1.75rem; font-weight: 800; color: #000;
+  margin: 0 auto 1rem; position: relative; z-index: 1;
+}
+.profile-name { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; position: relative; z-index: 1; }
+.profile-email { color: var(--muted); font-size: 0.875rem; position: relative; z-index: 1; }
+
+/* === ORDER TRACKING === */
+.tracking-layout { max-width: 700px; margin: 0 auto; padding: 3rem 2rem; }
+.track-timeline { margin: 3rem 0; }
+.track-step {
+  display: flex; gap: 1.5rem; margin-bottom: 2.5rem; position: relative;
+}
+.track-step::after {
+  content: ''; position: absolute; left: 19px; top: 44px;
+  width: 2px; height: calc(100% + 1rem);
+  background: var(--border);
+}
+.track-step:last-child::after { display: none; }
+.track-dot {
+  width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; position: relative; z-index: 1;
+}
+.track-dot.done { background: linear-gradient(135deg, #00f5ff, #7c3aed); }
+.track-dot.active { background: rgba(0,245,255,0.15); border: 2px solid var(--neon); animation: pulse 2s infinite; }
+.track-dot.pending { background: var(--surface); border: 1px solid var(--border); }
+.track-label { font-family: var(--font-display); font-weight: 600; margin-bottom: 0.25rem; }
+.track-sub { font-size: 0.8rem; color: var(--muted); }
+
+/* === TOAST === */
+.toast {
+  position: fixed; bottom: 2rem; right: 2rem; z-index: 300;
+  background: rgba(0,245,255,0.1); border: 1px solid rgba(0,245,255,0.3);
+  backdrop-filter: blur(20px); border-radius: 12px;
+  padding: 1rem 1.5rem; display: none; align-items: center; gap: 0.75rem;
+  animation: slideIn 0.3s ease;
+}
+.toast.show { display: flex; }
+@keyframes slideIn { from{transform:translateX(100px);opacity:0} to{transform:translateX(0);opacity:1} }
+
+/* === FEATURE STRIP === */
+.features-row { display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center; margin-top: 4rem; }
+.feature-chip {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 1rem 1.5rem; border-radius: 100px;
+  background: var(--surface); border: 1px solid var(--border);
+  font-size: 0.85rem; color: var(--muted);
+}
+.feature-chip .icon { font-size: 1.2rem; }
+.feature-chip strong { color: var(--text); }
+
+/* === TESTIMONIALS === */
+.testimonials-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 3rem; }
+.testimonial-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 1.75rem;
+}
+.testi-stars { color: var(--gold); margin-bottom: 1rem; font-size: 0.85rem; }
+.testi-text { color: var(--muted); font-size: 0.9rem; line-height: 1.7; margin-bottom: 1.25rem; font-style: italic; }
+.testi-author { display: flex; align-items: center; gap: 0.75rem; }
+.testi-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--neon), var(--neon2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem; font-weight: 700; color: #000;
+}
+.testi-name { font-weight: 600; font-size: 0.875rem; }
+.testi-role { font-size: 0.75rem; color: var(--muted); }
+
+/* === CONTACT / ABOUT === */
+.contact-layout { max-width: 900px; margin: 0 auto; padding: 3rem 2rem; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; }
+.about-content { max-width: 900px; margin: 0 auto; padding: 3rem 2rem; }
+
+/* === FOOTER === */
+footer {
+  border-top: 1px solid var(--border); padding: 3rem 2rem;
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 2rem;
+}
+.footer-brand { max-width: 260px; }
+.footer-logo { font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; letter-spacing: 0.15em; background: linear-gradient(135deg,#00f5ff,#7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 1rem; }
+.footer-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.7; }
+.footer-col h4 { font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text); font-weight: 600; margin-bottom: 1rem; }
+.footer-col a { display: block; font-size: 0.85rem; color: var(--muted); text-decoration: none; margin-bottom: 0.6rem; cursor: pointer; transition: color 0.2s; }
+.footer-col a:hover { color: var(--neon); }
+.footer-bottom { grid-column: 1/-1; border-top: 1px solid var(--border); padding-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+.footer-bottom p { font-size: 0.8rem; color: var(--muted); }
+.social-links { display: flex; gap: 0.75rem; }
+.social-btn { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; color: var(--muted); font-size: 0.85rem; text-decoration: none; }
+.social-btn:hover { border-color: var(--neon); color: var(--neon); }
+
+/* === LOGIN === */
+.auth-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+.auth-card { width: 100%; max-width: 440px; background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 2.5rem; }
+.auth-logo { text-align: center; margin-bottom: 2rem; font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; letter-spacing: 0.2em; background: linear-gradient(135deg,#00f5ff,#7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.auth-tab { display: flex; background: rgba(255,255,255,0.03); border-radius: 10px; padding: 4px; margin-bottom: 2rem; }
+.auth-tab-btn { flex: 1; padding: 0.6rem; border-radius: 7px; border: none; background: transparent; color: var(--muted); font-family: var(--font-body); font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+.auth-tab-btn.active { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+.divider { display: flex; align-items: center; gap: 1rem; margin: 1.5rem 0; color: var(--muted); font-size: 0.8rem; }
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.social-login { display: flex; gap: 0.75rem; }
+.social-login button { flex: 1; padding: 0.7rem; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-family: var(--font-body); font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+.social-login button:hover { border-color: var(--neon); }
+
+/* Scroll reveal */
+.reveal { opacity: 0; transform: translateY(40px); transition: all 0.7s cubic-bezier(.2,.8,.2,1); }
+.reveal.in-view { opacity: 1; transform: none; }
+
+/* Neon line */
+.neon-line {
+  height: 1px; background: linear-gradient(90deg, transparent, var(--neon), var(--neon2), transparent);
+  margin: 0; opacity: 0.4;
+}
+
+@media (max-width: 768px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .product-detail-layout, .cart-layout, .checkout-layout, .contact-layout, footer { grid-template-columns: 1fr; }
+  .dash-grid { grid-template-columns: 1fr; }
+  .nav-links { display: none; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<!-- SEARCH OVERLAY -->
+<div class="search-overlay" id="search-overlay">
+  <div style="width:100%;max-width:600px;padding:0 2rem">
+    <div class="search-box">
+      <span style="font-size:1.5rem;color:var(--neon)">⌕</span>
+      <input class="search-input" placeholder="Search products..." id="search-input" autofocus>
+      <button onclick="closeSearch()" style="background:none;border:none;color:var(--muted);font-size:1.5rem;cursor:pointer">✕</button>
+    </div>
+    <p style="font-size:0.75rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase">Trending</p>
+    <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:1rem">
+      <span onclick="searchFor('Cyber Headphones')" style="padding:0.4rem 1rem;border-radius:100px;border:1px solid var(--border);font-size:0.8rem;color:var(--muted);cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='var(--neon)';this.style.color='var(--neon)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">🎧 Cyber Headphones</span>
+      <span onclick="searchFor('Quantum Watch')" style="padding:0.4rem 1rem;border-radius:100px;border:1px solid var(--border);font-size:0.8rem;color:var(--muted);cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='var(--neon)';this.style.color='var(--neon)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⌚ Quantum Watch</span>
+      <span onclick="searchFor('Nova Sneakers')" style="padding:0.4rem 1rem;border-radius:100px;border:1px solid var(--border);font-size:0.8rem;color:var(--muted);cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='var(--neon)';this.style.color='var(--neon)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">👟 Nova Sneakers</span>
+      <span onclick="searchFor('Prism Sunglasses')" style="padding:0.4rem 1rem;border-radius:100px;border:1px solid var(--border);font-size:0.8rem;color:var(--muted);cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='var(--neon)';this.style.color='var(--neon)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">🕶 Prism Sunglasses</span>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span style="font-size:1.2rem">✓</span>
+  <span id="toast-msg">Added to cart!</span>
+</div>
+
+<!-- NAVBAR -->
+<nav>
+  <div class="nav-logo" onclick="showPage('home')">MD SALIK AMIR</div>
+  <ul class="nav-links">
+    <li><a onclick="showPage('home')" class="active" id="nav-home">Home</a></li>
+    <li><a onclick="showPage('products')" id="nav-products">Shop</a></li>
+    <li><a onclick="showPage('about')" id="nav-about">About</a></li>
+    <li><a onclick="showPage('contact')" id="nav-contact">Contact</a></li>
+    <li><a onclick="showPage('dashboard')" id="nav-dashboard">Dashboard</a></li>
+  </ul>
+  <div class="nav-actions">
+    <div class="nav-icon" onclick="openSearch()" title="Search">⌕</div>
+    <div class="nav-icon" onclick="showPage('wishlist')" title="Wishlist">♡</div>
+    <div class="nav-icon cart-badge" data-count="0" id="cart-nav-icon" onclick="showPage('cart')" title="Cart">🛍</div>
+    <div class="nav-icon" onclick="showPage('login')" title="Account">◉</div>
+  </div>
+</nav>
+
+<div class="app">
+
+<!-- ===== HOME / LANDING ===== -->
+<div class="page active" id="page-home">
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-orb orb1"></div>
+    <div class="hero-orb orb2"></div>
+    <div class="hero-orb orb3"></div>
+    <div style="position:relative;z-index:2">
+      <div class="hero-eyebrow"><span class="eyebrow-dot"></span>The Future of Commerce</div>
+      <h1 class="hero-title">
+        <span class="line1">BEYOND</span>
+        <span class="line2">ORDINARY</span>
+      </h1>
+      <p class="hero-sub">Experience a new dimension of shopping — where technology meets luxury. Products that redefine what's possible.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary" onclick="showPage('products')"><span>Explore My Collection →</span></button>
+        <button class="btn btn-ghost" onclick="showPage('about')">Our Story</button>
+      </div>
+    </div>
+    <!-- Floating 3D visual -->
+    <div class="hero-3d">
+      <canvas id="hero-canvas"></canvas>
+    </div>
+  </section>
+
+  <div class="neon-line"></div>
+
+  <!-- Stats -->
+  <div class="stats-strip">
+    <div class="stat"><div class="stat-num" data-target="2.4">0</div><div class="stat-label">Million Customers</div></div>
+    <div class="stat"><div class="stat-num" data-target="840">0</div><div class="stat-label">Premium Products</div></div>
+    <div class="stat"><div class="stat-num" data-target="98">0</div><div class="stat-label">Satisfaction Rate %</div></div>
+    <div class="stat"><div class="stat-num" data-target="180">0</div><div class="stat-label">Countries Served</div></div>
+  </div>
+
+  <!-- Categories -->
+  <section class="section reveal">
+    <div style="text-align:center;margin-bottom:1rem">
+      <p class="section-label">Collections</p>
+      <h2 class="section-title">Shop by Salik Collections</h2>
+      <p class="section-sub" style="margin:0 auto">Each category is a world designed to astonish and inspire your next obsession.</p>
+    </div>
+    <div class="categories-grid">
+      <div class="cat-card" onclick="filterCat('tech')"><span class="cat-emoji">⚡</span><div class="cat-name">Tech</div><div class="cat-count">142 products</div></div>
+      <div class="cat-card" onclick="filterCat('audio')"><span class="cat-emoji">🎧</span><div class="cat-name">Audio</div><div class="cat-count">89 products</div></div>
+      <div class="cat-card" onclick="filterCat('footwear')"><span class="cat-emoji">👟</span><div class="cat-name">Footwear</div><div class="cat-count">231 products</div></div>
+      <div class="cat-card" onclick="filterCat('wearables')"><span class="cat-emoji">⌚</span><div class="cat-name">Wearables</div><div class="cat-count">76 products</div></div>
+      <div class="cat-card" onclick="filterCat('optics')"><span class="cat-emoji">🕶</span><div class="cat-name">Optics</div><div class="cat-count">54 products</div></div>
+      <div class="cat-card" onclick="filterCat('lifestyle')"><span class="cat-emoji">✦</span><div class="cat-name">Lifestyle</div><div class="cat-count">198 products</div></div>
+    </div>
+  </section>
+
+  <!-- Featured Products -->
+  <section class="section reveal">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:1rem;margin-bottom:2rem">
+      <div>
+        <p class="section-label">Featured</p>
+        <h2 class="section-title" style="margin-bottom:0">Iconic Drops</h2>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="showPage('products')">View All →</button>
+    </div>
+    <div class="products-grid" id="featured-grid"></div>
+  </section>
+
+  <!-- Features -->
+  <section class="section reveal" style="text-align:center">
+    <p class="section-label">Why Nexus</p>
+    <h2 class="section-title">Engineered for Excellence</h2>
+    <div class="features-row">
+      <div class="feature-chip"><span class="icon">⚡</span><span><strong>2h</strong> Fast Delivery</span></div>
+      <div class="feature-chip"><span class="icon">🔒</span><span><strong>Secure</strong> Checkout</span></div>
+      <div class="feature-chip"><span class="icon">↩</span><span><strong>7-Day</strong> Returns</span></div>
+      <div class="feature-chip"><span class="icon">🌍</span><span><strong>Global</strong> Shipping</span></div>
+      <div class="feature-chip"><span class="icon">💎</span><span><strong>Premium</strong> Quality</span></div>
+      <div class="feature-chip"><span class="icon">🎧</span><span><strong>24/7</strong> Support</span></div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="section reveal">
+    <div style="text-align:center;margin-bottom:0">
+      <p class="section-label">Social Proof</p>
+      <h2 class="section-title">The World Agrees</h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-text">"The UX is unmatched. Shopping here feels like living in 2040. Every detail is obsessively considered."</div>
+        <div class="testi-author"><div class="testi-avatar">AK</div><div><div class="testi-name">Arjun Kapoor</div><div class="testi-role">Product Designer, Apple</div></div></div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-text">"I've never felt so confident buying online. The 3D previews are insane — exactly what arrived at my door."</div>
+        <div class="testi-author"><div class="testi-avatar">SM</div><div><div class="testi-name">Sofia Martinez</div><div class="testi-role">Creative Director, Nike</div></div></div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-text">"Nexus redefined what I expect from e-commerce. Premium, fast, and feels like the future. Addictive."</div>
+        <div class="testi-author"><div class="testi-avatar">TC</div><div><div class="testi-name">Tyler Chen</div><div class="testi-role">Founder, Venture Capital</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mobile Showcase -->
+  <section class="section reveal" style="text-align:center">
+    <p class="section-label">Mobile Experience</p>
+    <h2 class="section-title">Shop on Any Device</h2>
+    <p class="section-sub" style="margin:0 auto 3rem">Our mobile app brings the full Nexus experience to your fingertips with buttery smooth interactions.</p>
+    <div class="mobile-showcase">
+      <!-- Phone 1: Home -->
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div style="padding:12px 0 8px;display:flex;justify-content:space-between;align-items:center">
+            <div style="font-family:var(--font-display);font-size:0.7rem;font-weight:800;letter-spacing:0.15em;background:linear-gradient(135deg,#00f5ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent">NEXUS</div>
+            <span style="font-size:1rem">🔔</span>
+          </div>
+          <div style="background:linear-gradient(135deg,rgba(0,245,255,0.1),rgba(124,58,237,0.1));border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px">
+            <div style="font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px">New Drop</div>
+            <div style="font-family:var(--font-display);font-size:1rem;font-weight:700">Cyber X1 Pro</div>
+            <div style="font-size:0.75rem;color:var(--neon);margin:4px 0">$899</div>
+            <div style="display:flex;gap:6px;margin-top:8px">
+              <div style="flex:1;background:linear-gradient(135deg,#00f5ff,#7c3aed);border-radius:8px;padding:6px;text-align:center;font-size:0.65rem;font-weight:700;color:#000">Buy Now</div>
+              <div style="width:32px;height:32px;border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.8rem">♡</div>
+            </div>
+          </div>
+          <div style="font-size:0.65rem;letter-spacing:0.1em;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Categories</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px">
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center">
+              <div style="font-size:1.2rem">⚡</div><div style="font-size:0.6rem;margin-top:4px;color:var(--muted)">Tech</div>
+            </div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center">
+              <div style="font-size:1.2rem">🎧</div><div style="font-size:0.6rem;margin-top:4px;color:var(--muted)">Audio</div>
+            </div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center">
+              <div style="font-size:1.2rem">👟</div><div style="font-size:0.6rem;margin-top:4px;color:var(--muted)">Kicks</div>
+            </div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center">
+              <div style="font-size:1.2rem">⌚</div><div style="font-size:0.6rem;margin-top:4px;color:var(--muted)">Wear</div>
+            </div>
+          </div>
+          <div style="font-size:0.65rem;letter-spacing:0.1em;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Trending</div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px;display:flex;gap:10px;align-items:center;margin-bottom:6px">
+            <div style="width:42px;height:42px;background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0">🎧</div>
+            <div style="flex:1"><div style="font-size:0.7rem;font-weight:600">Cyber Bass Pro</div><div style="font-size:0.6rem;color:var(--muted)">$329</div></div>
+            <div style="font-size:0.65rem;color:var(--neon)">★ 4.9</div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px;display:flex;gap:10px;align-items:center">
+            <div style="width:42px;height:42px;background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0">👟</div>
+            <div style="flex:1"><div style="font-size:0.7rem;font-weight:600">Nova X Boost</div><div style="font-size:0.6rem;color:var(--muted)">$219</div></div>
+            <div style="font-size:0.65rem;color:var(--neon)">★ 4.8</div>
+          </div>
+        </div>
+        <div class="mobile-bottom-nav">
+          <div class="mob-nav-item active"><span>⌂</span><span class="mob-nav-label">Home</span></div>
+          <div class="mob-nav-item"><span>◻</span><span class="mob-nav-label">Shop</span></div>
+          <div class="mob-nav-item"><span>⌕</span><span class="mob-nav-label">Search</span></div>
+          <div class="mob-nav-item"><span>♡</span><span class="mob-nav-label">Saved</span></div>
+          <div class="mob-nav-item"><span>◉</span><span class="mob-nav-label">Profile</span></div>
+        </div>
+      </div>
+      <!-- Phone 2: Product -->
+      <div class="phone-frame" style="margin-top:40px">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div style="padding:12px 0 8px;display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:1rem;color:var(--muted)">←</span>
+            <span style="font-family:var(--font-display);font-size:0.8rem;font-weight:600">Product</span>
+            <span style="font-size:1rem">⋯</span>
+          </div>
+          <div style="background:linear-gradient(135deg,#0a0f1e,#1e293b);border-radius:16px;height:180px;display:flex;align-items:center;justify-content:center;font-size:4rem;margin-bottom:12px;border:1px solid var(--border)">⌚</div>
+          <div style="font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase">Nexus Labs</div>
+          <div style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;margin:4px 0">Quantum Pro Watch</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <span style="font-family:var(--font-display);font-size:1.25rem;font-weight:700;color:var(--neon)">$599</span>
+            <span style="font-size:0.75rem;color:var(--muted);text-decoration:line-through">$799</span>
+          </div>
+          <div style="font-size:0.65rem;color:var(--gold)">★★★★★ <span style="color:var(--muted)">(2.4k)</span></div>
+          <div style="font-size:0.72rem;color:var(--muted);line-height:1.6;margin:10px 0">Neural haptic feedback, 72h battery life, titanium case with sapphire crystal. Engineered for perfection.</div>
+          <div style="display:flex;gap:6px;margin-bottom:10px">
+            <div style="width:24px;height:24px;border-radius:50%;background:#00f5ff;border:2px solid var(--neon)"></div>
+            <div style="width:24px;height:24px;border-radius:50%;background:#7c3aed"></div>
+            <div style="width:24px;height:24px;border-radius:50%;background:#f59e0b"></div>
+            <div style="width:24px;height:24px;border-radius:50%;background:#1e293b;border:1px solid var(--border)"></div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <div style="flex:1;background:linear-gradient(135deg,#00f5ff,#7c3aed);border-radius:10px;padding:10px;text-align:center;font-size:0.75rem;font-weight:700;color:#000">Add to Cart</div>
+            <div style="width:40px;height:40px;border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem">♡</div>
+          </div>
+          <div style="margin-top:12px">
+            <div style="font-size:0.65rem;letter-spacing:0.1em;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Specs</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px"><div style="font-size:0.55rem;color:var(--muted)">Battery</div><div style="font-size:0.7rem;font-weight:600">72 Hours</div></div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px"><div style="font-size:0.55rem;color:var(--muted)">Case</div><div style="font-size:0.7rem;font-weight:600">Titanium</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="mobile-bottom-nav">
+          <div class="mob-nav-item"><span>⌂</span><span class="mob-nav-label">Home</span></div>
+          <div class="mob-nav-item active"><span>◻</span><span class="mob-nav-label">Shop</span></div>
+          <div class="mob-nav-item"><span>⌕</span><span class="mob-nav-label">Search</span></div>
+          <div class="mob-nav-item"><span>♡</span><span class="mob-nav-label">Saved</span></div>
+          <div class="mob-nav-item"><span>◉</span><span class="mob-nav-label">Profile</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-brand">
+      <div class="footer-logo">NEXUS</div>
+      <p class="footer-desc">The premium destination for those who refuse to settle. Technology, style, and culture — unified.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Shop</h4>
+      <a onclick="showPage('products')">All Products</a>
+      <a onclick="filterCat('tech')">Tech</a>
+      <a onclick="filterCat('audio')">Audio</a>
+      <a onclick="filterCat('footwear')">Footwear</a>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <a onclick="showPage('about')">About Us</a>
+      <a onclick="showPage('contact')">Contact</a>
+      <a onclick="showPage('dashboard')">Dashboard</a>
+    </div>
+    <div class="footer-col">
+      <h4>Support</h4>
+      <a onclick="showPage('tracking')">Track Order</a>
+      <a onclick="showPage('profile')">My Account</a>
+      <a>Privacy Policy</a>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Nexus Commerce by Md Salik Amir.</p>
+      <div class="social-links">
+        <a class="social-btn">𝕏</a>
+        <a class="social-btn">in</a>
+        <a class="social-btn">ig</a>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- ===== PRODUCTS PAGE ===== -->
+<div class="page" id="page-products">
+  <section class="section">
+    <div class="reveal">
+      <p class="section-label">Collection</p>
+      <h2 class="section-title">All Products</h2>
+    </div>
+    <div class="products-header" style="margin-top:2rem">
+      <div class="filter-bar" id="filter-bar">
+        <button class="filter-btn active" onclick="filterProducts('all',this)">All</button>
+        <button class="filter-btn" onclick="filterProducts('tech',this)">⚡ Tech</button>
+        <button class="filter-btn" onclick="filterProducts('audio',this)">🎧 Audio</button>
+        <button class="filter-btn" onclick="filterProducts('footwear',this)">👟 Footwear</button>
+        <button class="filter-btn" onclick="filterProducts('wearables',this)">⌚ Wearables</button>
+        <button class="filter-btn" onclick="filterProducts('optics',this)">🕶 Optics</button>
+      </div>
+      <div style="display:flex;gap:0.5rem;align-items:center">
+        <span style="font-size:0.8rem;color:var(--muted)" id="product-count">12 products</span>
+        <div class="nav-icon" onclick="openSearch()">⌕</div>
+      </div>
+    </div>
+    <div class="products-grid" id="main-products-grid" style="margin-top:1.5rem"></div>
+  </section>
+</div>
+
+<!-- ===== PRODUCT DETAIL PAGE ===== -->
+<div class="page" id="page-detail">
+  <div class="product-detail-layout">
+    <div>
+      <div class="detail-preview">
+        <canvas id="detail-canvas" class="detail-canvas"></canvas>
+      </div>
+      <div class="spec-grid" style="margin-top:1.5rem">
+        <div class="spec-item"><div class="spec-label">Category</div><div class="spec-value" id="spec-cat">Audio</div></div>
+        <div class="spec-item"><div class="spec-label">Rating</div><div class="spec-value" id="spec-rat">4.9 ★</div></div>
+        <div class="spec-item"><div class="spec-label">Stock</div><div class="spec-value">In Stock</div></div>
+        <div class="spec-item"><div class="spec-label">Ships</div><div class="spec-value">Within 24h</div></div>
+      </div>
+    </div>
+    <div>
+      <button class="btn btn-ghost btn-sm" onclick="goBack()" style="margin-bottom:1.5rem">← Back</button>
+      <p class="section-label" id="detail-brand">Nexus Audio</p>
+      <h1 class="detail-title" id="detail-name">Cyber Bass Pro</h1>
+      <div class="detail-price-block">
+        <span class="detail-price" id="detail-price">$329</span>
+        <span id="detail-old" style="color:var(--muted);font-size:1rem;text-decoration:line-through"></span>
+      </div>
+      <p class="detail-desc" id="detail-desc">Experience audio like never before with AI-enhanced sound processing, active noise cancellation, and 40-hour battery life. Crafted from premium materials that feel as good as they sound.</p>
+      <div style="margin-bottom:1rem">
+        <p style="font-size:0.75rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.75rem">Color</p>
+        <div class="color-pick">
+          <div class="color-dot active" style="background:#00f5ff" onclick="selectColor(this)"></div>
+          <div class="color-dot" style="background:#7c3aed" onclick="selectColor(this)"></div>
+          <div class="color-dot" style="background:#f59e0b" onclick="selectColor(this)"></div>
+          <div class="color-dot" style="background:#1e293b;border:1px solid var(--border)" onclick="selectColor(this)"></div>
+        </div>
+      </div>
+      <div class="detail-actions">
+        <button class="btn btn-primary" onclick="addCurrentToCart()"><span>Add to Cart →</span></button>
+        <button class="btn btn-ghost" onclick="addToWishlistDetail()">♡ Save</button>
+      </div>
+      <div style="display:flex;gap:1.5rem;margin-top:2rem;padding-top:2rem;border-top:1px solid var(--border)">
+        <div style="text-align:center"><div style="font-size:1.2rem;margin-bottom:0.25rem">⚡</div><div style="font-size:0.7rem;color:var(--muted)">Fast Delivery</div></div>
+        <div style="text-align:center"><div style="font-size:1.2rem;margin-bottom:0.25rem">🔒</div><div style="font-size:0.7rem;color:var(--muted)">Secure Pay</div></div>
+        <div style="text-align:center"><div style="font-size:1.2rem;margin-bottom:0.25rem">↩</div><div style="font-size:0.7rem;color:var(--muted)">7-Day Return</div></div>
+        <div style="text-align:center"><div style="font-size:1.2rem;margin-bottom:0.25rem">💎</div><div style="font-size:0.7rem;color:var(--muted)">Premium</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CART PAGE ===== -->
+<div class="page" id="page-cart">
+  <section class="section" style="padding-top:3rem">
+    <p class="section-label">Your Bag</p>
+    <h2 class="section-title">Cart</h2>
+    <div class="cart-layout" style="margin-top:2rem">
+      <div id="cart-items-list"></div>
+      <div class="order-summary">
+        <h3 class="summary-title">Order Summary</h3>
+        <div class="summary-line"><span style="color:var(--muted)">Subtotal</span><span id="cart-subtotal">$0</span></div>
+        <div class="summary-line"><span style="color:var(--muted)">Shipping</span><span style="color:#22c55e">Free</span></div>
+        <div class="summary-line"><span style="color:var(--muted)">Tax (8%)</span><span id="cart-tax">$0</span></div>
+        <div class="promo-input">
+          <input placeholder="Promo code" id="promo-inp">
+          <button class="btn btn-ghost btn-sm" onclick="applyPromo()">Apply</button>
+        </div>
+        <div class="summary-line total"><span>Total</span><span id="cart-total">$0</span></div>
+        <button class="btn btn-primary" style="width:100%;margin-top:1rem" onclick="showPage('checkout')"><span>Checkout →</span></button>
+        <button class="btn btn-ghost" style="width:100%;margin-top:0.75rem" onclick="showPage('products')">Continue Shopping</button>
+      </div>
+    </div>
+    <div id="cart-empty" style="text-align:center;padding:6rem 2rem;display:none">
+      <div style="font-size:4rem;margin-bottom:1rem">🛍</div>
+      <h3 style="font-family:var(--font-display);margin-bottom:0.5rem">Your cart is empty</h3>
+      <p style="color:var(--muted);margin-bottom:2rem">Add something extraordinary to get started.</p>
+      <button class="btn btn-primary" onclick="showPage('products')"><span>Start Shopping →</span></button>
+    </div>
+  </section>
+</div>
+
+<!-- ===== CHECKOUT PAGE ===== -->
+<div class="page" id="page-checkout">
+  <section class="section" style="padding-top:3rem">
+    <p class="section-label">Final Step</p>
+    <h2 class="section-title">Checkout</h2>
+    <div class="checkout-layout" style="margin-top:2rem">
+      <div>
+        <!-- Shipping -->
+        <div style="margin-bottom:2.5rem">
+          <div class="section-form-title"><div class="step-num">1</div>Shipping Information</div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">First Name</label><input class="form-input" placeholder="Md Salik"></div>
+            <div class="form-group"><label class="form-label">Last Name</label><input class="form-input" placeholder="Amir"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Email</label><input class="form-input" placeholder="mdsalikamir@gmail.com"></div>
+          <div class="form-group"><label class="form-label">Address</label><input class="form-input" placeholder="Madhuani"></div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">City</label><input class="form-input" placeholder="Bihar"></div>
+            <div class="form-group"><label class="form-label">ZIP</label><input class="form-input" placeholder="847212"></div>
+          </div>
+        </div>
+        <!-- Payment -->
+        <div>
+          <div class="section-form-title"><div class="step-num">2</div>Payment</div>
+          <div class="payment-methods">
+            <div class="pay-method active" onclick="selectPay(this)">💳 Card</div>
+            <div class="pay-method" onclick="selectPay(this)">◎ Crypto</div>
+            <div class="pay-method" onclick="selectPay(this)">⚡ UPI</div>
+          </div>
+          <div class="form-group"><label class="form-label">Card Number</label><input class="form-input" placeholder="4242 4242 4242 4242" maxlength="19"></div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Expiry</label><input class="form-input" placeholder="MM/YY"></div>
+            <div class="form-group"><label class="form-label">CVV</label><input class="form-input" placeholder="•••"></div>
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-top:1rem" onclick="placeOrder()"><span>✓ Place Order — Pay $<span id="checkout-total">0</span></span></button>
+        </div>
+      </div>
+      <!-- Checkout Summary -->
+      <div>
+        <div class="order-summary">
+          <h3 class="summary-title">Review Order</h3>
+          <div id="checkout-items"></div>
+          <div class="summary-line total" style="margin-top:1rem"><span>Total</span><span id="checkout-total-2">$0</span></div>
+          <div style="margin-top:1.5rem;padding:1rem;background:rgba(0,245,255,0.05);border:1px solid rgba(0,245,255,0.2);border-radius:12px">
+            <p style="font-size:0.75rem;color:var(--neon);font-weight:600;margin-bottom:0.5rem">🔒 Secure & Encrypted</p>
+            <p style="font-size:0.75rem;color:var(--muted)">256-bit SSL encryption. Your data is protected by quantum-grade security.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ===== WISHLIST PAGE ===== -->
+<div class="page" id="page-wishlist">
+  <section class="section">,
+    <p class="section-label">Your Favourites</p>
+    <h2 class="section-title">Wishlist</h2>
+    <div class="wishlist-grid" id="wishlist-grid" style="margin-top:2rem"></div>
+    <div id="wishlist-empty" style="text-align:center;padding:6rem 2rem;display:none">
+      <div style="font-size:4rem;margin-bottom:1rem">♡</div>
+      <h3 style="font-family:var(--font-display);margin-bottom:0.5rem">Nothing saved yet</h3>
+      <p style="color:var(--muted);margin-bottom:2rem">Find products you love and save them here.</p>
+      <button class="btn btn-primary" onclick="showPage('products')"><span>Explore Shop →</span></button>
+    </div>
+  </section>
+</div>
+
+<!-- ===== LOGIN PAGE ===== -->
+<div class="page" id="page-login">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-logo">MD SALIK AMIR</div>
+      <div class="auth-tab">
+        <button class="auth-tab-btn active" id="tab-login" onclick="switchAuth('login')">Sign In</button>
+        <button class="auth-tab-btn" id="tab-signup" onclick="switchAuth('signup')">Sign Up</button>
+      </div>
+      <div id="auth-login-form">
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" placeholder="mdsalikamir@gmail.com"></div>
+        <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" placeholder="••••••••"></div>
+        <button class="btn btn-primary" style="width:100%;margin-top:0.5rem" onclick="login()"><span>Sign In →</span></button>
+        <div class="divider">or continue with</div>
+        <div class="social-login">
+          <button onclick="login()">G Google</button>
+          <button onclick="login()">🍎 Apple</button>
+        </div>
+      </div>
+      <div id="auth-signup-form" style="display:none">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">First Name</label><input class="form-input" placeholder="Md Salik"></div>
+          <div class="form-group"><label class="form-label">Last Name</label><input class="form-input" placeholder="Amir"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" placeholder="mdsalikamir@gmail.com"></div>
+        <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" placeholder="••••••••"></div>
+        <button class="btn btn-primary" style="width:100%;margin-top:0.5rem" onclick="login()"><span>Create Account →</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PROFILE PAGE ===== -->
+<div class="page" id="page-profile">
+  <div class="profile-layout">
+    <div class="profile-hero">
+      <div class="avatar">AC</div>
+      <h2 class="profile-name">MD SALIK AMIR</h2>
+      <p class="profile-email">mdsalikamir@gmail.com</p>
+      <div style="display:flex;justify-content:center;gap:2rem;margin-top:1.5rem;position:relative;z-index:1">
+        <div style="text-align:center"><div style="font-family:var(--font-display);font-size:1.5rem;font-weight:700">12</div><div style="font-size:0.75rem;color:var(--muted)">Orders</div></div>
+        <div style="text-align:center"><div style="font-family:var(--font-display);font-size:1.5rem;font-weight:700" id="profile-wish-count">0</div><div style="font-size:0.75rem;color:var(--muted)">Wishlist</div></div>
+        <div style="text-align:center"><div style="font-family:var(--font-display);font-size:1.5rem;font-weight:700">Gold</div><div style="font-size:0.75rem;color:var(--muted)">Tier</div></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem">
+      <div class="glass" style="padding:1.5rem;cursor:pointer" onclick="showPage('tracking')"><div style="font-size:1.5rem;margin-bottom:0.75rem">📦</div><div style="font-family:var(--font-display);font-weight:600;margin-bottom:0.25rem">My Orders</div><div style="font-size:0.8rem;color:var(--muted)">Track & manage</div></div>
+      <div class="glass" style="padding:1.5rem;cursor:pointer" onclick="showPage('wishlist')"><div style="font-size:1.5rem;margin-bottom:0.75rem">♡</div><div style="font-family:var(--font-display);font-weight:600;margin-bottom:0.25rem">Wishlist</div><div style="font-size:0.8rem;color:var(--muted)">Saved items</div></div>
+      <div class="glass" style="padding:1.5rem;cursor:pointer"><div style="font-size:1.5rem;margin-bottom:0.75rem">💳</div><div style="font-family:var(--font-display);font-weight:600;margin-bottom:0.25rem">Payment</div><div style="font-size:0.8rem;color:var(--muted)">Cards & wallets</div></div>
+      <div class="glass" style="padding:1.5rem;cursor:pointer"><div style="font-size:1.5rem;margin-bottom:0.75rem">🔒</div><div style="font-family:var(--font-display);font-weight:600;margin-bottom:0.25rem">Security</div><div style="font-size:0.8rem;color:var(--muted)">Manage account</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ORDER TRACKING ===== -->
+<div class="page" id="page-tracking">
+  <div class="tracking-layout">
+    <p class="section-label">Live Status</p>
+    <h2 class="section-title">Order Tracking</h2>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin:2rem 0;display:flex;gap:1.5rem;align-items:center;flex-wrap:wrap">
+      <div><div style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em">Order ID</div><div style="font-family:var(--font-display);font-weight:700;color:var(--neon)">#NX-2025-7492</div></div>
+      <div style="height:40px;width:1px;background:var(--border)"></div>
+      <div><div style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em">Estimated</div><div style="font-family:var(--font-display);font-weight:600">Tomorrow, 6 PM</div></div>
+      <div style="height:40px;width:1px;background:var(--border)"></div>
+      <div><div style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em">Carrier</div><div style="font-family:var(--font-display);font-weight:600">Nexus Express</div></div>
+      <div style="margin-left:auto"><span style="padding:0.4rem 1rem;border-radius:100px;background:rgba(0,245,255,0.1);border:1px solid rgba(0,245,255,0.3);font-size:0.75rem;color:var(--neon);font-weight:600">In Transit</span></div>
+    </div>
+    <div class="track-timeline">
+      <div class="track-step"><div class="track-dot done">✓</div><div><div class="track-label">Order Placed</div><div class="track-sub">May 4, 2025 · 10:24 AM</div></div></div>
+      <div class="track-step"><div class="track-dot done">✓</div><div><div class="track-label">Payment Confirmed</div><div class="track-sub">May 4, 2025 · 10:25 AM</div></div></div>
+      <div class="track-step"><div class="track-dot done">✓</div><div><div class="track-label">Processing & Packed</div><div class="track-sub">May 4, 2025 · 3:00 PM</div></div></div>
+      <div class="track-step"><div class="track-dot active">→</div><div><div class="track-label">In Transit — Mumbai Hub</div><div class="track-sub">Now · Est. delivery tomorrow</div></div></div>
+      <div class="track-step"><div class="track-dot pending">◯</div><div><div class="track-label">Out for Delivery</div><div class="track-sub">Tomorrow morning</div></div></div>
+      <div class="track-step"><div class="track-dot pending">◯</div><div><div class="track-label">Delivered</div><div class="track-sub">Estimated tomorrow, 6 PM</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DASHBOARD ===== -->
+<div class="page" id="page-dashboard">
+  <div class="dashboard">
+    <div style="margin-bottom:2rem">
+      <p class="section-label">Admin Panel</p>
+      <h2 class="section-title" style="font-size:2rem">Dashboard</h2>
+    </div>
+    <div class="dash-grid">
+      <!-- Sidebar -->
+      <div class="dash-sidebar">
+        <div style="margin-bottom:1.5rem">
+          <div style="font-size:0.7rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.75rem">Main</div>
+          <div class="dash-nav-item active"><span class="icon">⊞</span>Overview</div>
+          <div class="dash-nav-item"><span class="icon">◻</span>Products</div>
+          <div class="dash-nav-item"><span class="icon">📦</span>Orders</div>
+          <div class="dash-nav-item"><span class="icon">◉</span>Customers</div>
+        </div>
+        <div>
+          <div style="font-size:0.7rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.75rem">Settings</div>
+          <div class="dash-nav-item"><span class="icon">⚙</span>Settings</div>
+          <div class="dash-nav-item"><span class="icon">🔒</span>Security</div>
+        </div>
+      </div>
+      <!-- Main -->
+      <div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-label">Revenue</div><div class="kpi-val">$2.4M</div><div class="kpi-delta delta-up">↑ 18.2% this month</div></div>
+          <div class="kpi-card"><div class="kpi-label">Orders</div><div class="kpi-val">8,492</div><div class="kpi-delta delta-up">↑ 12.5% this week</div></div>
+          <div class="kpi-card"><div class="kpi-label">Customers</div><div class="kpi-val">42.1K</div><div class="kpi-delta delta-up">↑ 9.3% growth</div></div>
+          <div class="kpi-card"><div class="kpi-label">Avg Order</div><div class="kpi-val">$284</div><div class="kpi-delta delta-down">↓ 2.1% this week</div></div>
+        </div>
+        <div class="chart-wrap">
+          <div class="chart-title">Revenue — Last 7 Days</div>
+          <canvas id="revenue-chart"></canvas>
+        </div>
+        <div class="chart-wrap">
+          <div class="chart-title">Recent Orders</div>
+          <div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
+              <thead><tr style="border-bottom:1px solid var(--border)">
+                <th style="text-align:left;padding:0.75rem;color:var(--muted);font-weight:500;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em">Order</th>
+                <th style="text-align:left;padding:0.75rem;color:var(--muted);font-weight:500;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em">Customer</th>
+                <th style="text-align:left;padding:0.75rem;color:var(--muted);font-weight:500;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em">Product</th>
+                <th style="text-align:right;padding:0.75rem;color:var(--muted);font-weight:500;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em">Amount</th>
+                <th style="text-align:right;padding:0.75rem;color:var(--muted);font-weight:500;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em">Status</th>
+              </tr></thead>
+              <tbody>
+                <tr style="border-bottom:1px solid rgba(255,255,255,0.04)"><td style="padding:0.75rem;font-weight:500">#7492</td><td style="padding:0.75rem;color:var(--muted)">Arjun K.</td><td style="padding:0.75rem">Cyber Bass Pro</td><td style="padding:0.75rem;text-align:right;font-weight:600">$329</td><td style="padding:0.75rem;text-align:right"><span style="padding:0.25rem 0.75rem;border-radius:100px;background:rgba(34,197,94,0.1);color:#22c55e;font-size:0.75rem">Shipped</span></td></tr>
+                <tr style="border-bottom:1px solid rgba(255,255,255,0.04)"><td style="padding:0.75rem;font-weight:500">#7491</td><td style="padding:0.75rem;color:var(--muted)">Sofia M.</td><td style="padding:0.75rem">Quantum Watch</td><td style="padding:0.75rem;text-align:right;font-weight:600">$599</td><td style="padding:0.75rem;text-align:right"><span style="padding:0.25rem 0.75rem;border-radius:100px;background:rgba(0,245,255,0.1);color:var(--neon);font-size:0.75rem">Processing</span></td></tr>
+                <tr style="border-bottom:1px solid rgba(255,255,255,0.04)"><td style="padding:0.75rem;font-weight:500">#7490</td><td style="padding:0.75rem;color:var(--muted)">Tyler C.</td><td style="padding:0.75rem">Nova X Boost</td><td style="padding:0.75rem;text-align:right;font-weight:600">$219</td><td style="padding:0.75rem;text-align:right"><span style="padding:0.25rem 0.75rem;border-radius:100px;background:rgba(245,158,11,0.1);color:var(--gold);font-size:0.75rem">Pending</span></td></tr>
+                <tr><td style="padding:0.75rem;font-weight:500">#7489</td><td style="padding:0.75rem;color:var(--muted)">Priya S.</td><td style="padding:0.75rem">Prism X Shades</td><td style="padding:0.75rem;text-align:right;font-weight:600">$189</td><td style="padding:0.75rem;text-align:right"><span style="padding:0.25rem 0.75rem;border-radius:100px;background:rgba(34,197,94,0.1);color:#22c55e;font-size:0.75rem">Delivered</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CONTACT PAGE ===== -->
+<div class="page" id="page-contact">
+  <div class="contact-layout">
+    <div>
+      <p class="section-label">Get in Touch</p>
+      <h2 class="section-title">Contact Us</h2>
+      <p style="color:var(--muted);line-height:1.8;margin:1.5rem 0;font-size:0.95rem">Have questions? We're here to help — our team responds within 2 hours on business days.</p>
+      <div style="display:flex;flex-direction:column;gap:1.25rem">
+        <div style="display:flex;gap:1rem;align-items:center"><div class="nav-icon">✉</div><div><div style="font-weight:600;font-size:0.9rem">mdsalikamir@gmail.com</div><div style="font-size:0.8rem;color:var(--muted)">Email Support</div></div></div>
+        <div style="display:flex;gap:1rem;align-items:center"><div class="nav-icon">💬</div><div><div style="font-weight:600;font-size:0.9rem">Live Chat</div><div style="font-size:0.8rem;color:var(--muted)">Average 3 min response</div></div></div>
+        <div style="display:flex;gap:1rem;align-items:center"><div class="nav-icon">📞</div><div><div style="font-weight:600;font-size:0.9rem">+91 7858802094</div><div style="font-size:0.8rem;color:var(--muted)">Mon–Fri, 9am–9pm IST</div></div></div>
+      </div>
+    </div>
+    <div>
+      <div class="form-group"><label class="form-label">Name</label><input class="form-input" placeholder="Your name"></div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" placeholder="your@email.com"></div>
+      <div class="form-group"><label class="form-label">Subject</label><input class="form-input" placeholder="How can we help?"></div>
+      <div class="form-group"><label class="form-label">Message</label><textarea class="form-input" rows="5" placeholder="Tell us more..." style="resize:vertical"></textarea></div>
+      <button class="btn btn-primary" style="width:100%" onclick="showToast('Message sent! We'll reply within 2 hours.')"><span>Send Message →</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ABOUT PAGE ===== -->
+<div class="page" id="page-about">
+  <div class="about-content">
+    <div style="text-align:center;padding:4rem 2rem 3rem">
+      <p class="section-label">Our Story</p>
+      <h1 class="section-title">Built for Those Who<br>Refuse to Settle</h1>
+      <p style="color:var(--muted);max-width:600px;margin:1.5rem auto;line-height:1.8;font-size:1rem">Nexus was born from a simple belief: that shopping should feel as remarkable as the products you're buying. We're a team of designers, engineers, and dreamers building the future of commerce.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.5rem;margin-bottom:4rem">
+      <div class="glass" style="padding:2rem;text-align:center"><div style="font-size:2.5rem;margin-bottom:1rem">⚡</div><h3 style="font-family:var(--font-display);margin-bottom:0.75rem">Obsessed with Speed</h3><p style="color:var(--muted);font-size:0.9rem;line-height:1.7">Every millisecond counts. Our platform is engineered for sub-100ms interactions.</p></div>
+      <div class="glass" style="padding:2rem;text-align:center"><div style="font-size:2.5rem;margin-bottom:1rem">💎</div><h3 style="font-family:var(--font-display);margin-bottom:0.75rem">Premium Only</h3><p style="color:var(--muted);font-size:0.9rem;line-height:1.7">Every product is hand-curated. We partner only with brands that share our obsession with quality.</p></div>
+      <div class="glass" style="padding:2rem;text-align:center"><div style="font-size:2.5rem;margin-bottom:1rem">🌍</div><h3 style="font-family:var(--font-display);margin-bottom:0.75rem">Global Scale</h3><p style="color:var(--muted);font-size:0.9rem;line-height:1.7">Serving customers in 180+ countries with localized experiences and lightning-fast delivery.</p></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end .app -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+// ===============================
+// DATA
+// ===============================
+const products = [
+  { id:1, name:'Cyber Bass Pro', brand:'Nexus Audio', price:329, old:449, emoji:'🎧', cat:'audio', badge:'new', stars:4.9, reviews:2841 },
+  { id:2, name:'Quantum Pro Watch', brand:'Nexus Labs', price:599, old:799, emoji:'⌚', cat:'wearables', badge:'hot', stars:4.8, reviews:1204 },
+  { id:3, name:'Nova X Boost', brand:'Nexus Run', price:219, old:null, emoji:'👟', cat:'footwear', badge:'new', stars:4.7, reviews:3562 },
+  { id:4, name:'Prism X Shades', brand:'Nexus Vision', price:189, old:249, emoji:'🕶', cat:'optics', badge:'sale', stars:4.6, reviews:892 },
+  { id:5, name:'Cyber X1 Pro', brand:'Nexus Tech', price:899, old:1099, emoji:'💻', cat:'tech', badge:'hot', stars:4.9, reviews:445 },
+  { id:6, name:'Echo Air Buds', brand:'Nexus Audio', price:149, old:null, emoji:'🎵', cat:'audio', badge:'new', stars:4.5, reviews:6721 },
+  { id:7, name:'Hyper Drive SSD', brand:'Nexus Tech', price:129, old:179, emoji:'💾', cat:'tech', badge:'sale', stars:4.7, reviews:2103 },
+  { id:8, name:'Flux Backpack', brand:'Nexus Life', price:259, old:null, emoji:'🎒', cat:'lifestyle', badge:null, stars:4.6, reviews:734 },
+  { id:9, name:'Zenith Trainer', brand:'Nexus Run', price:179, old:229, emoji:'👟', cat:'footwear', badge:'sale', stars:4.8, reviews:1892 },
+  { id:10, name:'Neural Band X', brand:'Nexus Labs', price:349, old:null, emoji:'⌚', cat:'wearables', badge:'new', stars:4.9, reviews:312 },
+  { id:11, name:'Reflex Cam 4K', brand:'Nexus Optics', price:449, old:599, emoji:'📷', cat:'tech', badge:'sale', stars:4.7, reviews:567 },
+  { id:12, name:'Apex Slide', brand:'Nexus Life', price:89, old:null, emoji:'🩴', cat:'footwear', badge:null, stars:4.4, reviews:2104 },
+];
+
+let cart = [];
+let wishlist = [];
+let currentProduct = null;
+let prevPage = 'home';
+let currentFilter = 'all';
+let cartCount = 0;
+
+// ===============================
+// NAVIGATION
+// ===============================
+function showPage(page) {
+  if(page !== 'detail') prevPage = document.querySelector('.page.active')?.id?.replace('page-','') || 'home';
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-links a').forEach(a=>a.classList.remove('active'));
+  const target = document.getElementById('page-'+page);
+  if(target) target.classList.add('active');
+  const navEl = document.getElementById('nav-'+page);
+  if(navEl) navEl.classList.add('active');
+  window.scrollTo(0,0);
+
+  if(page==='products') renderAllProducts();
+  if(page==='cart') renderCart();
+  if(page==='wishlist') renderWishlist();
+  if(page==='checkout') renderCheckout();
+  if(page==='profile') renderProfile();
+  if(page==='dashboard') renderDashboard();
+  setupReveal();
+}
+
+function goBack() { showPage(prevPage || 'products'); }
+
+// ===============================
+// PRODUCTS
+// ===============================
+function productCard(p, small=false) {
+  const isWished = wishlist.some(w=>w.id===p.id);
+  const stars = '★'.repeat(Math.floor(p.stars))+'☆'.repeat(5-Math.floor(p.stars));
+  return `<div class="product-card" data-cat="${p.cat}">
+    <div class="product-img-wrap">
+      <div style="font-size:${small?'3.5':'5'}rem;user-select:none">${p.emoji}</div>
+      ${p.badge?`<div class="product-badge badge-${p.badge}">${p.badge.toUpperCase()}</div>`:''}
+      <div class="product-wish ${isWished?'wished':''}" onclick="toggleWishlist(${p.id},event)" title="Save">♡</div>
+    </div>
+    <div class="product-info">
+      <div class="product-brand">${p.brand}</div>
+      <div class="product-name">${p.name}</div>
+      <div class="product-stars">${stars} <span>(${p.reviews.toLocaleString()})</span></div>
+      <div class="product-footer">
+        <div><span class="product-price">$${p.price}</span>${p.old?`<span class="product-old">$${p.old}</span>`:''}</div>
+        <button class="add-btn" onclick="addToCart(${p.id},event)" title="Add to cart">+</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function openDetail(p) {
+  currentProduct = p;
+  document.getElementById('detail-brand').textContent = p.brand;
+  document.getElementById('detail-name').textContent = p.name;
+  document.getElementById('detail-price').textContent = '$'+p.price;
+  document.getElementById('detail-old').textContent = p.old?'$'+p.old:'';
+  document.getElementById('spec-cat').textContent = p.cat.charAt(0).toUpperCase()+p.cat.slice(1);
+  document.getElementById('spec-rat').textContent = p.stars+' ★';
+  document.getElementById('detail-desc').textContent = getDesc(p);
+  showPage('detail');
+  // Draw emoji on canvas
+  const c = document.getElementById('detail-canvas');
+  if(c){ const ctx=c.getContext('2d'); c.width=c.parentElement.offsetWidth; c.height=c.parentElement.offsetHeight; ctx.clearRect(0,0,c.width,c.height); ctx.font=`${Math.min(c.width,c.height)*0.4}px serif`; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(p.emoji,c.width/2,c.height/2); animateFloat(c,p.emoji); }
+}
+
+function getDesc(p){ const d={'audio':'Experience audio like never before with AI-enhanced sound processing and 40-hour battery life.','wearables':'Titanium case with sapphire crystal. Neural haptic feedback and 72h battery with health monitoring.','footwear':'Adaptive cushioning system with carbon-fiber plate. Engineered for athletes who demand the extraordinary.','optics':'Polarized adaptive lenses with UV++ coating. Titanium frame weighing just 18g.','tech':'Liquid cooling, next-gen processors, and a display that redefines what\'s visually possible.','lifestyle':'Premium materials, thoughtful design, and built to last a lifetime.'}; return d[p.cat]||'Engineered for perfection. Every detail considered, every material premium.'; }
+
+let floatAnims = [];
+function animateFloat(canvas, emoji) {
+  floatAnims.forEach(a=>cancelAnimationFrame(a));
+  const ctx = canvas.getContext('2d');
+  let t=0;
+  function frame(){ t+=0.02; const y=Math.sin(t)*12; ctx.clearRect(0,0,canvas.width,canvas.height); ctx.font=`${Math.min(canvas.width,canvas.height)*0.4}px serif`; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(emoji,canvas.width/2,canvas.height/2+y); floatAnims.push(requestAnimationFrame(frame)); }
+  frame();
+}
+
+function renderFeatured(){
+  const g=document.getElementById('featured-grid');
+  if(!g)return;
+  const feat=products.slice(0,4);
+  g.innerHTML=feat.map(p=>`<div onclick="openDetail(products.find(x=>x.id===${p.id}))">${productCard(p)}</div>`).join('');
+}
+function renderAllProducts(filter='all'){
+  const g=document.getElementById('main-products-grid');
+  if(!g)return;
+  const f=filter==='all'?products:products.filter(p=>p.cat===filter);
+  document.getElementById('product-count').textContent=f.length+' products';
+  g.innerHTML=f.map(p=>`<div onclick="openDetail(products.find(x=>x.id===${p.id}))">${productCard(p)}</div>`).join('');
+}
+function filterProducts(cat,btn){
+  currentFilter=cat;
+  document.querySelectorAll('#filter-bar .filter-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  renderAllProducts(cat);
+}
+function filterCat(cat){
+  showPage('products');
+  filterProducts(cat,null);
+  document.querySelectorAll('#filter-bar .filter-btn').forEach(b=>{
+    if(b.textContent.toLowerCase().includes(cat))b.classList.add('active');
+    else b.classList.remove('active');
+  });
+}
+
+// ===============================
+// CART
+// ===============================
+function addToCart(id,e){
+  e&&e.stopPropagation();
+  const p=products.find(x=>x.id===id);
+  const existing=cart.find(c=>c.id===id);
+  if(existing) existing.qty++;
+  else cart.push({...p,qty:1});
+  cartCount=cart.reduce((s,c)=>s+c.qty,0);
+  document.getElementById('cart-nav-icon').setAttribute('data-count',cartCount);
+  showToast('Added to cart: '+p.name);
+}
+function addCurrentToCart(){ if(currentProduct) addToCart(currentProduct.id); }
+
+function renderCart(){
+  const list=document.getElementById('cart-items-list');
+  const empty=document.getElementById('cart-empty');
+  if(!cart.length){ list.style.display='none'; empty.style.display='block'; return; }
+  list.style.display='block'; empty.style.display='none';
+  list.innerHTML=cart.map(item=>`
+    <div class="cart-item">
+      <div class="cart-thumb">${item.emoji}</div>
+      <div class="cart-info">
+        <div class="cart-name">${item.name}</div>
+        <div class="cart-meta">${item.brand}</div>
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="changeQty(${item.id},-1)">−</button>
+          <span class="qty-num">${item.qty}</span>
+          <button class="qty-btn" onclick="changeQty(${item.id},1)">+</button>
+          <button class="qty-btn" onclick="removeFromCart(${item.id})" style="color:#ef4444;margin-left:0.5rem">✕</button>
+        </div>
+      </div>
+      <div class="cart-price">$${item.price*item.qty}</div>
+    </div>
+  `).join('');
+  updateCartTotals();
+}
+function changeQty(id,delta){
+  const item=cart.find(c=>c.id===id);
+  if(!item)return;
+  item.qty+=delta;
+  if(item.qty<=0) cart=cart.filter(c=>c.id!==id);
+  cartCount=cart.reduce((s,c)=>s+c.qty,0);
+  document.getElementById('cart-nav-icon').setAttribute('data-count',cartCount);
+  renderCart();
+}
+function removeFromCart(id){ changeQty(id,-999); }
+function updateCartTotals(){
+  const sub=cart.reduce((s,c)=>s+c.price*c.qty,0);
+  const tax=Math.round(sub*0.08);
+  document.getElementById('cart-subtotal').textContent='$'+sub;
+  document.getElementById('cart-tax').textContent='$'+tax;
+  document.getElementById('cart-total').textContent='$'+(sub+tax);
+}
+function applyPromo(){ showToast('Promo code applied: 10% off!'); }
+
+function renderCheckout(){
+  const items=document.getElementById('checkout-items');
+  if(items) items.innerHTML=cart.map(i=>`<div class="summary-line" style="padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.04)"><span style="display:flex;align-items:center;gap:0.5rem"><span>${i.emoji}</span><span style="font-size:0.85rem">${i.name} ×${i.qty}</span></span><span>$${i.price*i.qty}</span></div>`).join('');
+  const total=cart.reduce((s,c)=>s+c.price*c.qty,0);
+  const el=document.getElementById('checkout-total'); if(el)el.textContent=total;
+  const el2=document.getElementById('checkout-total-2'); if(el2)el2.textContent='$'+total;
+}
+function selectPay(el){ document.querySelectorAll('.pay-method').forEach(b=>b.classList.remove('active')); el.classList.add('active'); }
+function placeOrder(){ cart=[]; cartCount=0; document.getElementById('cart-nav-icon').setAttribute('data-count',0); showPage('tracking'); showToast('🎉 Order placed successfully!'); }
+
+// ===============================
+// WISHLIST
+// ===============================
+function toggleWishlist(id,e){
+  e&&e.stopPropagation();
+  const p=products.find(x=>x.id===id);
+  if(wishlist.some(w=>w.id===id)){ wishlist=wishlist.filter(w=>w.id!==id); showToast('Removed from wishlist'); }
+  else { wishlist.push(p); showToast('Saved to wishlist: '+p.name); }
+  document.querySelectorAll('.product-card').forEach(card=>{
+    const btn=card.querySelector('.product-wish');
+    if(!btn)return;
+    // check data via onclick
+  });
+  renderAllProducts(currentFilter);
+  renderFeatured();
+}
+function addToWishlistDetail(){ if(currentProduct) toggleWishlist(currentProduct.id,null); }
+function renderWishlist(){
+  const g=document.getElementById('wishlist-grid');
+  const empty=document.getElementById('wishlist-empty');
+  if(!wishlist.length){ g.style.display='none'; empty.style.display='block'; return; }
+  g.style.display='grid'; empty.style.display='none';
+  g.innerHTML=wishlist.map(p=>`<div onclick="openDetail(products.find(x=>x.id===${p.id}))">${productCard(p,true)}</div>`).join('');
+}
+function renderProfile(){ const el=document.getElementById('profile-wish-count'); if(el)el.textContent=wishlist.length; }
+
+// ===============================
+// AUTH
+// ===============================
+function switchAuth(mode){
+  document.getElementById('auth-login-form').style.display=mode==='login'?'block':'none';
+  document.getElementById('auth-signup-form').style.display=mode==='signup'?'block':'none';
+  document.getElementById('tab-login').classList.toggle('active',mode==='login');
+  document.getElementById('tab-signup').classList.toggle('active',mode==='signup');
+}
+function login(){ showToast('Welcome back! Signed in.'); showPage('profile'); }
+function selectColor(el){ document.querySelectorAll('.color-dot').forEach(d=>d.classList.remove('active')); el.classList.add('active'); }
+
+// ===============================
+// SEARCH
+// ===============================
+function openSearch(){ document.getElementById('search-overlay').classList.add('open'); document.getElementById('search-input').focus(); }
+function closeSearch(){ document.getElementById('search-overlay').classList.remove('open'); }
+function searchFor(q){ closeSearch(); showPage('products'); renderAllProducts('all'); document.getElementById('product-count').textContent='Showing results for: '+q; }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeSearch(); });
+
+// ===============================
+// TOAST
+// ===============================
+function showToast(msg){ const t=document.getElementById('toast'); document.getElementById('toast-msg').textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
+
+// ===============================
+// SCROLL REVEAL
+// ===============================
+function setupReveal(){
+  const els=document.querySelectorAll('.reveal');
+  const obs=new IntersectionObserver(entries=>{ entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in-view'); }); },{ threshold:0.1 });
+  els.forEach(el=>obs.observe(el));
+}
+
+// ===============================
+// ANIMATED COUNTERS
+// ===============================
+function animateCounters(){
+  document.querySelectorAll('.stat-num[data-target]').forEach(el=>{
+    const target=parseFloat(el.dataset.target);
+    let current=0; const step=target/60;
+    const t=setInterval(()=>{
+      current=Math.min(current+step,target);
+      el.textContent=(current%1===0||current>=target)?current.toFixed(current<10&&target<10?1:0):current.toFixed(1);
+      if(current>=target)clearInterval(t);
+    },16);
+  });
+}
+
+// ===============================
+// PARTICLE BACKGROUND
+// ===============================
+function initParticles(){
+  const canvas=document.getElementById('bg-canvas');
+  const ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+  window.addEventListener('resize',()=>{ canvas.width=window.innerWidth; canvas.height=window.innerHeight; });
+  const particles=[];
+  for(let i=0;i<80;i++) particles.push({ x:Math.random()*canvas.width, y:Math.random()*canvas.height, r:Math.random()*1.5+0.5, vx:(Math.random()-0.5)*0.3, vy:(Math.random()-0.5)*0.3, opacity:Math.random()*0.5+0.1 });
+  function frame(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach((p,i)=>{
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0)p.x=canvas.width; if(p.x>canvas.width)p.x=0;
+      if(p.y<0)p.y=canvas.height; if(p.y>canvas.height)p.y=0;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(0,245,255,${p.opacity})`; ctx.fill();
+      // Connect nearby particles
+      particles.slice(i+1).forEach(p2=>{
+        const d=Math.hypot(p.x-p2.x,p.y-p2.y);
+        if(d<100){ ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(p2.x,p2.y); ctx.strokeStyle=`rgba(0,245,255,${0.05*(1-d/100)})`; ctx.lineWidth=0.5; ctx.stroke(); }
+      });
+    });
+    requestAnimationFrame(frame);
+  }
+  frame();
+}
+
+// ===============================
+// HERO CANVAS (FLOATING SHAPES)
+// ===============================
+function initHeroCanvas(){
+  const canvas=document.getElementById('hero-canvas');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  canvas.width=canvas.parentElement.offsetWidth; canvas.height=canvas.parentElement.offsetHeight;
+  const shapes=[
+    {x:0.2,y:0.5,size:60,type:'hex',color:'rgba(0,245,255,0.8)',t:0,speed:0.01},
+    {x:0.5,y:0.4,size:80,type:'ring',color:'rgba(124,58,237,0.9)',t:1,speed:0.015},
+    {x:0.8,y:0.5,size:55,type:'tri',color:'rgba(245,158,11,0.8)',t:2,speed:0.012},
+    {x:0.35,y:0.7,size:35,type:'ring',color:'rgba(0,245,255,0.5)',t:0.5,speed:0.02},
+    {x:0.65,y:0.3,size:45,type:'hex',color:'rgba(124,58,237,0.6)',t:1.5,speed:0.008},
+  ];
+  function drawHex(ctx,x,y,r,color){
+    ctx.beginPath();
+    for(let i=0;i<6;i++){ const a=Math.PI/3*i-Math.PI/6; i===0?ctx.moveTo(x+r*Math.cos(a),y+r*Math.sin(a)):ctx.lineTo(x+r*Math.cos(a),y+r*Math.sin(a)); }
+    ctx.closePath(); ctx.strokeStyle=color; ctx.lineWidth=2; ctx.stroke();
+  }
+  function drawRing(ctx,x,y,r,color){
+    ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.strokeStyle=color; ctx.lineWidth=2; ctx.stroke();
+    ctx.beginPath(); ctx.arc(x,y,r*0.6,0,Math.PI*2); ctx.strokeStyle=color.replace('0.','0.3'); ctx.lineWidth=1; ctx.stroke();
+  }
+  function drawTri(ctx,x,y,r,color){
+    ctx.beginPath();
+    for(let i=0;i<3;i++){ const a=Math.PI*2/3*i-Math.PI/2; i===0?ctx.moveTo(x+r*Math.cos(a),y+r*Math.sin(a)):ctx.lineTo(x+r*Math.cos(a),y+r*Math.sin(a)); }
+    ctx.closePath(); ctx.strokeStyle=color; ctx.lineWidth=2; ctx.stroke();
+  }
+  function frame(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    shapes.forEach(s=>{
+      s.t+=s.speed;
+      const cx=s.x*canvas.width; const cy=s.y*canvas.height+Math.sin(s.t)*20;
+      ctx.save(); ctx.translate(cx,cy); ctx.rotate(s.t*0.5); ctx.translate(-cx,-cy);
+      if(s.type==='hex') drawHex(ctx,cx,cy,s.size,s.color);
+      else if(s.type==='ring') drawRing(ctx,cx,cy,s.size,s.color);
+      else drawTri(ctx,cx,cy,s.size,s.color);
+      ctx.restore();
+    });
+    requestAnimationFrame(frame);
+  }
+  frame();
+}
+
+// ===============================
+// DASHBOARD CHART
+// ===============================
+function renderDashboard(){
+  setTimeout(()=>{
+    const c=document.getElementById('revenue-chart');
+    if(!c)return;
+    if(c._chartInstance) c._chartInstance.destroy();
+    c._chartInstance=new Chart(c,{
+      type:'line',
+      data:{
+        labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+        datasets:[{
+          label:'Revenue',
+          data:[42000,58000,51000,73000,89000,95000,112000],
+          borderColor:'#00f5ff', backgroundColor:'rgba(0,245,255,0.05)',
+          borderWidth:2, pointBackgroundColor:'#00f5ff', pointRadius:4,
+          tension:0.4, fill:true
+        },{
+          label:'Orders',
+          data:[210,340,280,420,510,590,680],
+          borderColor:'#7c3aed', backgroundColor:'rgba(124,58,237,0.05)',
+          borderWidth:2, pointBackgroundColor:'#7c3aed', pointRadius:4,
+          tension:0.4, fill:true
+        }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ labels:{ color:'#64748b', font:{size:12} } } },
+        scales:{
+          x:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#64748b' } },
+          y:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#64748b' } }
+        }
+      }
+    });
+  },200);
+}
+
+// ===============================
+// MOUSE PARALLAX ON HERO
+// ===============================
+document.addEventListener('mousemove',e=>{
+  const x=(e.clientX/window.innerWidth-0.5)*20;
+  const y=(e.clientY/window.innerHeight-0.5)*10;
+  document.querySelectorAll('.hero-orb').forEach((orb,i)=>{
+    const factor=(i+1)*0.5;
+    orb.style.transform=`translate(${x*factor}px,${y*factor}px)`;
+  });
+});
+
+// ===============================
+// INIT
+// ===============================
+document.addEventListener('DOMContentLoaded',()=>{
+  initParticles();
+  initHeroCanvas();
+  renderFeatured();
+  renderAllProducts();
+  setupReveal();
+  // Animate counters when visible
+  const statsObs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ animateCounters(); statsObs.disconnect(); } });
+  });
+  const strip=document.querySelector('.stats-strip');
+  if(strip) statsObs.observe(strip);
+});
+</script>
+</body>
+</html>
